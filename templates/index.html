@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+<head>
+<title>Flaskr</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+
+<script src="{{ url_for('static', filename='js/jquery-3.1.0.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/jquery-ui.min.js') }}"></script>
+
+<script>
+
+var LIGHTHOUSE_HEIGHT_OFFSET_MULTIPLIER = 0.325229722065629;
+var LIGHTHOUSE_WIDTH_OFFSET_MULTIPLIER = 0.43800322061191627;
+
+function resizeMap(){
+    $('#holder').width($(window).width() - 50);
+    $('#holder').height($(window).height() - 50);
+    var window_width = $('#holder').width();
+    var window_height = $('#holder').height();
+    if (window_height < window_width){
+        $('#themap').width(window_height);
+    } else {
+        $('#themap').width(window_width);
+    };
+}
+
+function placeLighthouse(){
+    var window_width = $('#themap').width();
+    var window_height = $('#themap').height();
+    $('#lighthouse').width(Math.min(window_width, window_height) / 40);
+    var map_width = $('#themap').width();
+    var map_height = $('#themap').height();
+    var lh_top = parseInt(map_height * LIGHTHOUSE_HEIGHT_OFFSET_MULTIPLIER);
+    var lh_left = parseInt(map_width * LIGHTHOUSE_WIDTH_OFFSET_MULTIPLIER);
+    $('#lighthouse').css({position:'absolute', top: lh_top, left: lh_left});
+}
+
+function resized(){
+    resizeMap();
+    placeLighthouse();
+}
+
+$(window).resize(resized);
+$('#lighthouse').draggable({stop: resized});
+
+// Calling resized directly from document.read isn't working
+// on Firefox 46. Lighthouse isn't placed quite correctly.
+// not sure why. Works fine on Chrome 52 though.
+$(document).ready(function(){
+    setTimeout(resized, 100);
+});
+
+
+</script>
+</head>
+<body>
+<div class=page>
+
+  {% for message in get_flashed_messages() %}
+    <div class=flash>{{ message }}</div>
+  {% endfor %}
+
+<div id='holder'>
+<a href="/dbgprint/">
+  <img id='themap' src="{{ url_for('static', filename='brc_map_downrezzed.png') }}" ismap>
+</a>
+
+<img id='lighthouse' src="{{ url_for('static', filename='lighthouse.png') }}">
+
+
+  <a href="/goto201">a</a>
+  <a href="#" onclick="resized();" >b</a>
+
+  {% block body %}{% endblock %}
+</div>
+</div>
+</body>
+</html>
+
