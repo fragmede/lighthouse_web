@@ -15,8 +15,8 @@ var LIGHTHOUSE_WIDTH_OFFSET_MULTIPLIER = 0.43800322061191627;
 function resizeMap(){
     $('#holder').width($(window).width() - 50);
     $('#holder').height($(window).height() - 50);
-    var window_width = $('#holder').width();
-    var window_height = $('#holder').height();
+    var window_width = parseInt($('#holder').width());
+    var window_height = parseInt($('#holder').height());
     if (window_height < window_width){
         $('#themap').width(window_height);
     } else {
@@ -25,29 +25,38 @@ function resizeMap(){
 }
 
 function placeLighthouse(){
-    var window_width = $('#themap').width();
-    var window_height = $('#themap').height();
-    $('#lighthouse').width(Math.min(window_width, window_height) / 40);
     var map_width = $('#themap').width();
     var map_height = $('#themap').height();
+    $('#lighthouse').width(Math.min(map_width, map_height) / 40);
     var lh_top = parseInt(map_height * LIGHTHOUSE_HEIGHT_OFFSET_MULTIPLIER);
     var lh_left = parseInt(map_width * LIGHTHOUSE_WIDTH_OFFSET_MULTIPLIER);
     $('#lighthouse').css({position:'absolute', top: lh_top, left: lh_left});
 }
 
+function changeHref(){
+    var raw_lighthouse_pos = $('#lighthouse').position();
+    var map_pos = $('#themap').position();
+    var lighthouse_pos = [raw_lighthouse_pos.left - map_pos.left, raw_lighthouse_pos.top- map_pos.top];
+    var map_width = parseInt($('#themap').width());
+    var map_height = parseInt($('#themap').height());
+    $('#maplink').attr('href', "/pan_to_coord/map_"+map_width+'x'+map_height+'/lh_'+lighthouse_pos[0]+'x'+lighthouse_pos[1]);
+}
+
 function resized(){
     resizeMap();
     placeLighthouse();
+    changeHref();
 }
 
 $(window).resize(resized);
-$('#lighthouse').draggable({stop: resized});
 
 // Calling resized directly from document.read isn't working
 // on Firefox 46. Lighthouse isn't placed quite correctly.
 // not sure why. Works fine on Chrome 52 though.
 $(document).ready(function(){
     setTimeout(resized, 100);
+    //set lighthouse to be draggable to simplify math.
+    //$('#lighthouse').draggable({stop: resized});
 });
 
 
@@ -61,7 +70,7 @@ $(document).ready(function(){
   {% endfor %}
 
 <div id='holder'>
-<a href="/dbgprint/">
+<a id='maplink' href=''>
   <img id='themap' src="{{ url_for('static', filename='brc_map_downrezzed.png') }}" ismap>
 </a>
 

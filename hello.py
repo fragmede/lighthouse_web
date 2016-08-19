@@ -2,11 +2,11 @@
 # stdlib
 
 # other 3rd-party libs
-import liblo
-
 import flask
-from flask import Flask
+import liblo
+import numpy as np
 
+from flask import Flask, request
 
 # local libs
 import map_to_lighthouse_pan_angle
@@ -31,28 +31,21 @@ camps = [
 osc_server = liblo.Address('127.0.0.1', 8000)
 
 @app.route("/")
-def foo():
-    return flask.render_template('index.html', body='food', foo=[1,2,3])
+def root():
+    return flask.render_template('index.html')
 
-@app.route("/goto201")
-def goto201():
-    things = []
-    for camp in camps:
-        thing = map_to_lighthouse_pan_angle.lighthouse_camp_to_theta_degrees(map_to_lighthouse_pan_angle.camp_to_man_xy(*camp))
-        things.append(thing)
-        
-    #return "Hello World! %s" % (str('<br>'.join(int(things))),)
-    rotate_to = lighthouse_camp_to_theta_degrees(camp_to_man_xy(3, 'e'))
+@app.route("/pan_to_coord/map_<int:map_width>x<int:map_height>/lh_<int:lh_left>x<int:lh_top>")
+def pan_to_coord(map_width, map_height, lh_left, lh_top):
+    args = request.args.keys()[0]
+    image_x, image_y = [int(q) for q in args.split(',')]
 
-    liblo.send(osc_server, '/staticLight/pan', float(rotate_to))
+    x, y = (image_x - lh_left), (image_y - lh_top)
+    raw_theta = np.degrees(np.arctan2(y, x))
+    lighthouse_theta = 180 + raw_theta
+    print y, x, lighthouse_theta
+    liblo.send(osc_server, '/staticLight/pan', lighthouse_theta)
 
-    return flask.Response(status=200)
-
-    return str(foo)
-
-#@app.errorhandler(werkzeug.exceptions.BadRequest)
-#def handle_bad_request(e):
-#    return 'bad request!'
+    return flask.Response(status=204)
 
 if __name__ == "__main__":
     app.run()
