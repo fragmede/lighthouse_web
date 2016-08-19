@@ -58,39 +58,37 @@ def camp_to_man_xy(hour, street_letter):
 lh_xy = lighthouse_man_xy()
 def lighthouse_camp_to_theta_degrees(camp_loc):
     xy_dist = camp_loc - lh_xy
-    x_neg, y_neg = xy_dist[0] < 0, xy_dist[1] < 0
-
     raw_theta = np.degrees(np.arctan2(xy_dist[1], xy_dist[0]))
+    #print 'camp', xy_dist[1], xy_dist[0], 'theta', raw_theta
     return 180 - raw_theta
 
-np.set_printoptions(precision=4, suppress=True)
-nordic_space_camp = camp_to_man_xy(3, 'g')
+np.set_printoptions(precision=2, suppress=True)
 
-#xy_dist = lh_xy + nordic_space_camp
+if __name__ == '__main__':
+    nordic_space_camp = camp_to_man_xy(3.25, 'g')
+    print '3 g should be 199', nordic_space_camp, lighthouse_camp_to_theta_degrees(nordic_space_camp)
 
-#print lh_xy
+    camp = art_to_man_xy(0,0)
+    print '0  0 man should be 240', camp, lighthouse_camp_to_theta_degrees(camp)
 
-camp = art_to_man_xy(0,0)
-print '0  0 man should be 240', camp, lighthouse_camp_to_theta_degrees(camp)
+    camp = camp_to_man_xy(3,'e')
+    print '3  e should be 201', camp, lighthouse_camp_to_theta_degrees(camp)
 
-camp = camp_to_man_xy(3,'e')
-print '3  e should be 201', camp, lighthouse_camp_to_theta_degrees(camp)
+    camp = camp_to_man_xy(6,'e')
+    print '6 e expect 259', camp, lighthouse_camp_to_theta_degrees(camp)
 
-camp = camp_to_man_xy(6,'e')
-print '6 e expect 259', camp, lighthouse_camp_to_theta_degrees(camp)
+    camp = camp_to_man_xy(8,'l')
+    print '8  l expect 307', camp, lighthouse_camp_to_theta_degrees(camp)
 
-camp = camp_to_man_xy(8,'l')
-print '8  l expect 307', camp, lighthouse_camp_to_theta_degrees(camp)
+    camp = camp_to_man_xy(10,'b')
+    print '10  b expect 347', camp, lighthouse_camp_to_theta_degrees(camp)
 
-camp = camp_to_man_xy(10,'b')
-print '10  b expect 347', camp, lighthouse_camp_to_theta_degrees(camp)
+    camp = camp_to_man_xy(9,'c')
+    print '9  c expect 319', camp, lighthouse_camp_to_theta_degrees(camp)
 
-camp = camp_to_man_xy(9,'c')
-print '9  c expect 319', camp, lighthouse_camp_to_theta_degrees(camp)
+    camp = art_to_man_xy(11,2300)
+    print '11,2300 further past art on 11 o\'clock - expect 60', camp, lighthouse_camp_to_theta_degrees(camp)
 
-camp = art_to_man_xy(11,2300)
-print '11,2300 further past art on 11 o\'clock - expect 60', camp, lighthouse_camp_to_theta_degrees(camp)
-
-camp = art_to_man_xy(12,2500)
-print '12,2500 temple-ish - expect 151', camp, lighthouse_camp_to_theta_degrees(camp)
+    camp = art_to_man_xy(12,2500)
+    print '12,2500 temple-ish - expect 151', camp, lighthouse_camp_to_theta_degrees(camp)
 
