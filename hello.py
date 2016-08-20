@@ -5,6 +5,8 @@
 import flask
 import liblo
 import numpy as np
+import ujson as json
+#import rapidjson as json
 
 from flask import Flask, request
 
@@ -33,6 +35,60 @@ osc_server = liblo.Address('127.0.0.1', 8000)
 @app.route("/")
 def root():
     return flask.render_template('index.html')
+
+camp_list = json.load(open('data/camps.2015.json'))
+
+@app.route("/camp_search/")
+def camp_search():
+    args = request.args.get('term')
+    if not args:
+        return json.dumps([])
+
+    filtered_list_of_camps = []
+    l_args = args.lower()
+    for camp in camp_list:
+        if l_args in camp['name'].lower():
+            obj_loc = camp['location']
+            if not obj_loc['string']:
+                # Mobile and test data don't have locations
+                continue
+            frontage = obj_loc['frontage']
+            intersection = obj_loc['intersection']
+            if frontage == 'Esplanade':
+                frontage = 'z' # magic value defined in map_to_l...py
+            if len(frontage) == 1:
+                # frontage is in ['A', 'B', ...
+                letter_road = frontage
+                clock_road = intersection
+            else:
+                letter_road = intersection
+                clock_road = frontage
+
+            d = {'value': camp['name'],
+                 'clock_road': clock_road,
+                 'letter_road': letter_road,
+                 'id': camp['uid'],
+                 'str_loc': obj_loc['string']
+                 }
+            filtered_list_of_camps.append(d)
+    return json.dumps(filtered_list_of_camps[:30])
+
+@app.route('/pan_to_camp/', methods=['POST'])
+def pan_to_camp():
+    name = request.form['value']
+    clock_road = request.form['clock_road']
+    letter_road = request.form['letter_road']
+    print 'pan_to_camp', clock_road, letter_road
+
+    camp = camp_to_man_xy(clock_road, letter_road)
+    theta = lighthouse_camp_to_theta_degrees(camp)
+    liblo.send(osc_server, '/staticLight/pan', theta)
+
+    return flask.Response(status=204)
+
+#@app.route("/pan_to_camp/<str:camp_name>/<camp_frontage>,<camp_intersection>")
+#def pan_to_camp(camp_name, camp_frontage, camp_intersection):
+#    return flask.Response(status=204)
 
 @app.route("/pan_to_coord/map_<int:map_width>x<int:map_height>/lh_<int:lh_left>x<int:lh_top>")
 def pan_to_coord(map_width, map_height, lh_left, lh_top):

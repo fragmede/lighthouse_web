@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-<title>Flaskr</title>
+<title>Black Rock Lighthouse Service</title>
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
 
 <script src="{{ url_for('static', filename='js/jquery-3.1.0.min.js') }}"></script>
@@ -13,14 +13,18 @@ var LIGHTHOUSE_HEIGHT_OFFSET_MULTIPLIER = 0.325229722065629;
 var LIGHTHOUSE_WIDTH_OFFSET_MULTIPLIER = 0.43800322061191627;
 
 function resizeMap(){
-    $('#holder').width($(window).width() - 50);
-    $('#holder').height($(window).height() - 50);
+    //$('#holder').width($(window).width() - 50);
+    //$('#holder').height($(window).height() - 50);
     var window_width = parseInt($('#holder').width());
     var window_height = parseInt($('#holder').height());
+
     if (window_height < window_width){
+        //$('#holder').width($(window).width() - 50);
         $('#themap').width(window_height);
     } else {
         $('#themap').width(window_width);
+    //$('#holder').width($(window).width() - 50);
+    //$('#holder').height($(window).height() - 50);
     };
 }
 
@@ -59,30 +63,60 @@ $(document).ready(function(){
     //$('#lighthouse').draggable({stop: resized});
 });
 
+$( function() {
+    function log( message ) {
+        $( "<div>" ).text( message ).prependTo( "#log" );
+        $( "#log" ).scrollTop( 0 );
+    }
+
+    $( "#camps" ).autocomplete({
+        source: "/camp_search/",
+        minLength: 2,
+        select: function( event, ui ) {
+            log( ui.item ?
+                    "Selected: " + ui.item.value + " @ " + ui.item.str_loc:
+                    "Nothing selected, input was " + this.value );
+            $.ajax({url: 'pan_to_camp/',
+                    type: 'POST',
+                    data: ui.item,
+                    success: function(){
+                        //alert('sent!');
+                        console.log('sent');
+                    }
+            });
+        }
+    })
+    .autocomplete('instance'._renderItem = function(ul, item){
+        return $('<li>').append('<div>'+item.name).appendTo(ul);
+    });
+} );
 
 </script>
 </head>
 <body>
-<div class=page>
+    <div class=page>
+        {% for message in get_flashed_messages() %}
+        <div class=flash>{{ message }}</div>
+        {% endfor %}
 
-  {% for message in get_flashed_messages() %}
-    <div class=flash>{{ message }}</div>
-  {% endfor %}
+        <div id='holder'>
+            <a id='maplink' href=''>
+                <img id='themap' src="{{ url_for('static', filename='brc_map_downrezzed.png') }}" ismap>
+            </a>
+            <img id='lighthouse' src="{{ url_for('static', filename='lighthouse.png') }}">
+        </div>
+        <div class="ui-widget">
+            <label for="camps">Camps: </label>
+            <input id="camps">
+        </div>
 
-<div id='holder'>
-<a id='maplink' href=''>
-  <img id='themap' src="{{ url_for('static', filename='brc_map_downrezzed.png') }}" ismap>
-</a>
+        <div class="ui-widget" style="margin-top:2em; font-family:Arial">
+            Result:
+            <div id="log" style="height: 200px; width: 300px; overflow: auto;" class="ui-widget-content"></div>
+        </div>
 
-<img id='lighthouse' src="{{ url_for('static', filename='lighthouse.png') }}">
-
-
-  <a href="/goto201">a</a>
-  <a href="#" onclick="resized();" >b</a>
-
-  {% block body %}{% endblock %}
-</div>
-</div>
+    </div>
+            {% block body %}{% endblock %}
 </body>
 </html>
 

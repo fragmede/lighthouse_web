@@ -52,8 +52,14 @@ def lighthouse_man_xy():
 def art_to_man_xy(hour, dist):
     return degrees_dist_to_man_xy(*hour_dist_to_degrees_dist(hour, dist))
 
-def camp_to_man_xy(hour, street_letter):
-    return degrees_dist_to_man_xy(*hour_street_to_degrees_dist(hour, street_letter))
+def camp_to_man_xy(raw_clock, street_letter):
+    if ':' in raw_clock:
+        int_parts = [float(x) for x in raw_clock.split(':')]
+        clock = int_parts[0] + int_parts[1]/60
+        print 'camp man', raw_clock, clock
+    else:
+        clock = raw_clock
+    return degrees_dist_to_man_xy(*hour_street_to_degrees_dist(clock, street_letter))
 
 lh_xy = lighthouse_man_xy()
 def lighthouse_camp_to_theta_degrees(camp_loc):
