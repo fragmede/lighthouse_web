@@ -36,7 +36,7 @@ osc_server = liblo.Address('127.0.0.1', 8000)
 def root():
     return flask.render_template('index.html')
 
-camp_list = json.load(open('data/camps.2015.json'))
+camp_list = json.load(open('data/camp.2015.json'))
 
 @app.route("/camp_search/")
 def camp_search():
