@@ -1,4 +1,4 @@
 #!/bin/bash
 
-FLASK_DEBUG=1 FLASK_APP=hello.py python -m fsk run --host=0.0.0.0
+FLASK_DEBUG=1 FLASK_APP=brls_map_server.py python -m flask run --host=0.0.0.0
 
