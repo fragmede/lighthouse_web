@@ -1,0 +1,1 @@
+curl -u $BM_KEY:$BM_KEY https://api.burningman.org/api/v1/camp?year=2015 > camps.2015.json
