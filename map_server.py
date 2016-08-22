@@ -18,7 +18,7 @@ from map_to_lighthouse_pan_angle import (
     lighthouse_camp_to_theta_degrees,
     )
 
-from map_data import (
+from parse_camp_data import (
     parse_camp_location,
     )
 
