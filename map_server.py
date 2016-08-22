@@ -18,6 +18,10 @@ from map_to_lighthouse_pan_angle import (
     lighthouse_camp_to_theta_degrees,
     )
 
+from map_data import (
+    parse_camp_location,
+    )
+
 app = Flask(__name__)
 app.config['DEBUG'] = True
 
@@ -49,24 +53,10 @@ def camp_search():
     for camp in camp_list:
         if l_args in camp['name'].lower():
             obj_loc = camp['location']
-            if not obj_loc['string']:
-                # Mobile and test data don't have locations
-                continue
-            frontage = obj_loc['frontage']
-            intersection = obj_loc['intersection']
-            if len(frontage) == 1:
-                # frontage is in ['A', 'B', ...
-                letter_road = frontage
-                clock_road = intersection
-            else:
-                letter_road = intersection
-                clock_road = frontage
-
             d = {'value': camp['name'],
-                 'clock_road': clock_road,
-                 'letter_road': letter_road,
                  'id': camp['uid'],
-                 'str_loc': obj_loc['string']
+                 'str_loc': obj_loc['string'],
+                 'json_loc': json.dumps(obj_loc),
                  }
             filtered_list_of_camps.append(d)
     return json.dumps(filtered_list_of_camps[:30])
@@ -74,19 +64,27 @@ def camp_search():
 @app.route('/pan_to_camp/', methods=['POST'])
 def pan_to_camp():
     name = request.form['value']
-    clock_road = request.form['clock_road']
-    letter_road = request.form['letter_road']
-    print 'pan_to_camp', clock_road, letter_road
 
-    camp = camp_to_man_xy(clock_road, letter_road)
-    theta = lighthouse_camp_to_theta_degrees(camp)
+    location_info = json.loads(request.form['json_loc'])
+    print location_info
+
+    parsed_location_info = parse_camp_location(location_info)
+
+    if 'man_x' in parsed_location_info:
+        man_x = parsed_location_info['man_x']
+        man_y = parsed_location_info['man_y']
+        man_xy = (man_x, man_y)
+    else:
+        clock_road = parsed_location_info['clock_road']
+        letter_road = parsed_location_info['letter_road']
+        man_xy = camp_to_man_xy(clock_road, letter_road)
+
+    theta = lighthouse_camp_to_theta_degrees(man_xy)
     liblo.send(osc_server, '/staticLight/pan', theta)
 
-    return flask.Response(status=204)
+    print 'manxy', name, man_xy, theta
 
-#@app.route("/pan_to_camp/<str:camp_name>/<camp_frontage>,<camp_intersection>")
-#def pan_to_camp(camp_name, camp_frontage, camp_intersection):
-#    return flask.Response(status=204)
+    return flask.Response(status=204)
 
 @app.route("/pan_to_coord/map_<int:map_width>x<int:map_height>/lh_<int:lh_left>x<int:lh_top>")
 def pan_to_coord(map_width, map_height, lh_left, lh_top):

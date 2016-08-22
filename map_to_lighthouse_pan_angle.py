@@ -24,18 +24,21 @@ def hour_dist_to_degrees_dist(hour, dist):
     degrees = hour * 30
     return degrees, dist
 
-def degrees_dist_to_man_xy(degrees, dist):
+def degree_to_xy_quadrant(degrees):
     rad = np.radians(degrees)
 
-    x = abs(dist * np.sin(rad))
-    y = abs(dist * np.cos(rad))
+    x = abs(np.sin(rad))
+    y = abs(np.cos(rad))
 
     if degrees > 180: # 6 o'clock
         x = -x
     if 90 <= degrees <= 270: # 3 or 9 o'clock
         y = -y
+    return x, y
 
-    return np.array((x, y))
+def degrees_dist_to_man_xy(degrees, dist):
+    x, y = degree_to_xy_quadrant(degrees)
+    return np.array((x * dist, y * dist))
 
 def lighthouse_hour_dist():
     """
@@ -50,13 +53,14 @@ def lighthouse_man_xy():
 def art_to_man_xy(hour, dist):
     return degrees_dist_to_man_xy(*hour_dist_to_degrees_dist(hour, dist))
 
-def camp_to_man_xy(raw_clock, street_letter):
+def raw_clock_to_decimal(raw_clock):
     if ':' in raw_clock:
         int_parts = [float(x) for x in raw_clock.split(':')]
-        clock = int_parts[0] + int_parts[1]/60
-        print 'camp man', raw_clock, clock
-    else:
-        clock = raw_clock
+        return int_parts[0] + int_parts[1]/60
+    return raw_clock
+
+def camp_to_man_xy(raw_clock, street_letter):
+    clock = raw_clock_to_decimal(raw_clock)
     return degrees_dist_to_man_xy(*hour_street_to_degrees_dist(clock, street_letter))
 
 lh_xy = lighthouse_man_xy()
