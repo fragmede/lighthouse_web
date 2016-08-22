@@ -77,13 +77,10 @@ def frontage_in_6_plaza(frontage):
 def handle_6_plaza(frontage, intersection):
     if frontage == "Rod's Road":
         radius = 220 * 4
-    #elif frontage == 'Center Camp Plaza':
     else:
         radius = 220
 
     assert is_only_time(intersection)
-    #intersection is '4:15'
-
     hour = raw_clock_to_decimal(intersection)
     if hour > 12:
         hour -= 12
@@ -93,9 +90,6 @@ def handle_6_plaza(frontage, intersection):
     center_camp_man_x, center_camp_man_y = camp_to_man_xy(*center_camp_center)
 
     return {'man_x': center_camp_man_x + rod_x, 'man_y': center_camp_man_y + rod_y}
-
-#def parse_camp_location(camp):
-#    loc = camp['location']
 
 def parse_camp_location(loc):
     frontage = loc['frontage']
@@ -118,7 +112,6 @@ def parse_camp_location(loc):
         location_info = handle_6_plaza(frontage, intersection)
         return location_info
 
-    #print 'fi', loc, frontage, intersection
     raise Exception('yeah no. %s %s' % (frontage, intersection,) )
 
 if __name__ == '__main__':
@@ -126,4 +119,3 @@ if __name__ == '__main__':
         if not camp['location']['string']:
             continue
         location = parse_camp_location(camp)
-        #print location
