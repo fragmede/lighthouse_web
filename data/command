@@ -1,2 +1,0 @@
-# endpoints = /art /camp /event
-curl -u $BM_API_KEY:$BM_API_KEY https://api.burningman.org/api/v1/camp?year=2016 > camps.2016.json
