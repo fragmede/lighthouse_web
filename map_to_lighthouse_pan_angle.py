@@ -7,8 +7,6 @@ Esplanade is 2500 ft from man
 E -> A is 400 ft
 A -> B (and the rest) is 200 ft
 
-using 'z' street for esplanade
-
 Roads are 40 ft wide, split in half for each block.
 
 Info from
@@ -17,7 +15,7 @@ http://burningman.org/event/black-rock-city-guide/2016-black-rock-city-plan/
 """
 
 def hour_street_to_degrees_dist(hour,street_letter):
-    if street_letter.lower() is 'z':
+    if street_letter.lower() is 'esplanade':
         return 2500
     dist = 2500 + 400 + ((ord(street_letter.lower()) - ord('a')) * 220)
     return hour_dist_to_degrees_dist(hour, dist)

@@ -54,8 +54,6 @@ def camp_search():
                 continue
             frontage = obj_loc['frontage']
             intersection = obj_loc['intersection']
-            if frontage == 'Esplanade':
-                frontage = 'z' # magic value defined in map_to_l...py
             if len(frontage) == 1:
                 # frontage is in ['A', 'B', ...
                 letter_road = frontage
