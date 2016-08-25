@@ -16,6 +16,10 @@ h2              { font-size: 1.2em; }
                   border: 1px solid #aacbe2; }
 .error          { background: #f0d6d6; padding: 0.5em; }
 
-#holder         { width: 100%; }
+#holder         { width: 100%; float: none;}
 #themap         { overflow: visible; float: none; z-index: 0; }
 #lighthouse     { float: right; z-index: 1; }
+
+.notlog { height: 200px; width: 300px; overflow: auto;}
+
+.log { height: 200px;  overflow: auto;}

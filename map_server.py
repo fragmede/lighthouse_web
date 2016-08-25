@@ -20,19 +20,11 @@ from map_to_lighthouse_pan_angle import (
 
 from parse_camp_data import (
     parse_camp_location,
+    filter_camp_list,
     )
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
-
-camps = [
-    (3,'e'),
-    (6,'e'),
-    (8,'l'),
-    (9,'a'),
-    (9,'c'),
-    (10,'b'),
-    ]
 
 osc_server = liblo.Address('127.0.0.1', 8000)
 
@@ -40,32 +32,19 @@ osc_server = liblo.Address('127.0.0.1', 8000)
 def root():
     return flask.render_template('index.html')
 
-camp_list = json.load(open('data/camp.2015.json'))
-
 @app.route("/camp_search/")
 def camp_search():
-    args = request.args.get('term')
-    if not args:
+    search_query = request.args.get('term')
+    if not search_query:
         return json.dumps([])
-
-    filtered_list_of_camps = []
-    l_args = args.lower()
-    for camp in camp_list:
-        if l_args in camp['name'].lower():
-            obj_loc = camp['location']
-            d = {'value': camp['name'],
-                 'id': camp['uid'],
-                 'str_loc': obj_loc['string'],
-                 'json_loc': json.dumps(obj_loc),
-                 }
-            filtered_list_of_camps.append(d)
-    return json.dumps(filtered_list_of_camps[:30])
+    return json.dumps(filter_camp_list(search_query)[:30])
 
 @app.route('/pan_to_camp/', methods=['POST'])
 def pan_to_camp():
     name = request.form['value']
+    uid = request.form['uid']
 
-    location_info = json.loads(request.form['json_loc'])
+    location_info = location_from_camp_uid(uid)
     print location_info
 
     parsed_location_info = parse_camp_location(location_info)
@@ -83,6 +62,13 @@ def pan_to_camp():
     liblo.send(osc_server, '/staticLight/pan', theta)
 
     print 'manxy', name, man_xy, theta
+
+    return flask.Response(status=204)
+
+@app.route('/pan_to_art/', methods=['POST'])
+def pan_to_art():
+    art_uid = request.form['uid']
+    theta = parse_art_location(art)
 
     return flask.Response(status=204)
 

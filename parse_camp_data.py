@@ -114,6 +114,20 @@ def parse_camp_location(loc):
 
     raise Exception('yeah no. %s %s' % (frontage, intersection,) )
 
+def filter_camp_list(raw_search_string):
+    filtered_list_of_camps = []
+    search_string = raw_search_string.lower()
+    for camp in camp_list:
+        if search_string in camp['name'].lower():
+            obj_loc = camp['location']
+            d = {'value': camp['name'],
+                 'id': camp['uid'],
+                 'str_loc': obj_loc['string'],
+                 'json_loc': json.dumps(obj_loc),
+                 }
+            filtered_list_of_camps.append(d)
+    return filtered_list_of_camps
+
 if __name__ == '__main__':
     for camp in camp_list:
         if not camp['location']['string']:
